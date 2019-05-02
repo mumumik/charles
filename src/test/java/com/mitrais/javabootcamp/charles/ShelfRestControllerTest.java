@@ -22,8 +22,8 @@ import com.mitrais.javabootcamp.charles.service.ShelfServiceImpl;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(ShelfRestController.class)
@@ -42,12 +42,12 @@ public class ShelfRestControllerTest {
 	public void get_ShelfById_ReturnsOk() throws Exception{
 		
 		//setup
-		List<Book> bookList = new ArrayList<>();
+		Set<Book> bookList = new HashSet<>();
 		Shelf theShelf = new Shelf(1, 10, 0, bookList);
 		when(shelfService.findById(anyInt())).thenReturn(theShelf);
 		
 		//action & assertion
-		mockMvc.perform(MockMvcRequestBuilders.post("/shelfs/1"))				
+		mockMvc.perform(MockMvcRequestBuilders.get("/shelfs/1"))				
 				.andExpect(content().json("{'shelfId':1,'maxCapacity':10,'currentCapacity':0,'books':[]}"));
 		
 	}
@@ -56,15 +56,15 @@ public class ShelfRestControllerTest {
 	public void addBook_ReturnsOk() throws Exception{
 		
 		//setup
-		Book theBook = new Book(1, "978-979-2763-37-9","ROBIN HOOD",Status.shelved,"Paul Creswick");
-		List<Book> bookList = new ArrayList<>();
+		Book theBook = new Book(1, "978-979-2763-37-9","ROBIN HOOD",Status.SHELVED,"Paul Creswick");
+		Set<Book> bookList = new HashSet<>();
 		bookList.add(theBook);
 		Shelf theShelf = new Shelf(1, 10, 1, bookList);
 		when(shelfService.addBook(anyInt(), anyInt())).thenReturn(theShelf);
 		
 		//action & assertion
-		mockMvc.perform(MockMvcRequestBuilders.post("/shelfs/addBook?shelfId=1&bookId=1"))
-				.andExpect(content().json("{'shelfId':1,'maxCapacity':10,'currentCapacity':1,'books':[{'id':1,'isbn':'978-979-2763-37-9','title':'ROBIN HOOD','author':'Paul Creswick','status':'shelved'}]}"));
+		mockMvc.perform(MockMvcRequestBuilders.post("/shelfs/?shelfId=1&bookId=1"))
+				.andExpect(content().json("{'shelfId':1,'maxCapacity':10,'currentCapacity':1,'books':[{'id':1,'isbn':'978-979-2763-37-9','title':'ROBIN HOOD','author':'Paul Creswick','status':'SHELVED'}]}"));
 		
 	}
 	
@@ -72,12 +72,12 @@ public class ShelfRestControllerTest {
 	public void removeBook_ReturnsOk() throws Exception{
 		
 		//setup	
-		List<Book> bookList = new ArrayList<>();
+		Set<Book> bookList = new HashSet<>();
 		Shelf theShelf = new Shelf(1, 10, 0, bookList);
 		when(shelfService.removeBook(anyInt(), anyInt())).thenReturn(theShelf);
 		
 		//action & assertion
-		mockMvc.perform(MockMvcRequestBuilders.post("/shelfs/removeBook?shelfId=1&bookId=1"))
+		mockMvc.perform(MockMvcRequestBuilders.delete("/shelfs/?shelfId=1&bookId=1"))
 		.andExpect(content().json("{'shelfId':1,'maxCapacity':10,'currentCapacity':0,'books':[]}"));
 		
 	}

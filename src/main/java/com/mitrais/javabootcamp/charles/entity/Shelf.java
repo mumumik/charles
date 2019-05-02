@@ -1,7 +1,7 @@
 package com.mitrais.javabootcamp.charles.entity;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -30,19 +30,19 @@ public class Shelf {
 	
 	@OneToMany(fetch=FetchType.LAZY)
 	@JoinColumn(name="shelf_id")
-	private List<Book> books;
+	private Set<Book> books;
 	
 	public Shelf() {
 		
 	}
 
-	public Shelf(int maxCapacity, int currentCapacity, List<Book> books) {
+	public Shelf(int maxCapacity, int currentCapacity, Set<Book> books) {
 		this.maxCapacity = maxCapacity;
 		this.currentCapacity = currentCapacity;
 		this.books = books;
 	}
 
-	public Shelf(int shelfId, int maxCapacity, int currentCapacity, List<Book> books) {
+	public Shelf(int shelfId, int maxCapacity, int currentCapacity, Set<Book> books) {
 		this.shelfId = shelfId;
 		this.maxCapacity = maxCapacity;
 		this.currentCapacity = currentCapacity;
@@ -73,18 +73,18 @@ public class Shelf {
 		this.currentCapacity = currentCapacity;
 	}
 
-	public List<Book> getBooks() {
+	public Set<Book> getBooks() {
 		return books;
 	}
 
-	public void setBooks(List<Book> books) {
+	public void setBooks(Set<Book> books) {
 		this.books = books;
 	}
 
 	public void addBook(Book theBook) {
 		
 		if(books == null) {
-			books = new ArrayList<>();
+			books = new HashSet<>();
 		}
 		
 		books.add(theBook);

@@ -1,10 +1,13 @@
 package com.mitrais.javabootcamp.charles.service;
 
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.mitrais.javabootcamp.charles.entity.Book;
 import com.mitrais.javabootcamp.charles.entity.Status;
@@ -21,9 +24,9 @@ public class BookServiceImpl implements BookService {
 	}
 	
 	@Override
-	public List<Book> findAll() {
+	public Set<Book> findAll() {
 		
-		List<Book> books = bookRepository.findAllByOrderByStatusAsc();
+		Set<Book> books = bookRepository.findAllByOrderByStatusAsc();
 		
 		return books;
 	}
@@ -38,13 +41,14 @@ public class BookServiceImpl implements BookService {
 		if(result.isPresent()){
 			theBook = result.get();
 		}else {
-			throw new RuntimeException("Book Id not found - " + theId);
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Book Id not found - " + theId);
 		}
 		
 		return theBook;
 	}
 
 	@Override
+	@Transactional
 	public void save(Book theBook) {
 		
 		bookRepository.save(theBook);
@@ -52,19 +56,26 @@ public class BookServiceImpl implements BookService {
 	}
 
 	@Override
+	@Transactional
 	public void deleteById(int theId) {
+		
+		Optional<Book> result = bookRepository.findById(theId);
+		
+		if(!result.isPresent()){
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Book Id not found - " + theId);
+		}
 		
 		bookRepository.deleteById(theId);
 
 	}
 
 	@Override
-	public List<Book> findByTitle(String theTitle) {
+	public Set<Book> findByTitle(String theTitle) {
 		
-		List<Book> books = bookRepository.findByTitleIgnoreCaseContaining(theTitle);		
+		Set<Book> books = bookRepository.findByTitleIgnoreCaseContaining(theTitle);		
 		
-		if(books == null) {
-			throw new RuntimeException("Book Title not found - " + theTitle);
+		if(books.isEmpty()) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no book with title - " + theTitle);
 		} 
 		
 		return books;
@@ -72,12 +83,12 @@ public class BookServiceImpl implements BookService {
 	}
 
 	@Override
-	public List<Book> findByStatus(Status theStatus) {
+	public Set<Book> findByStatus(Status theStatus) {
 
-		List<Book> books = bookRepository.findByStatus(theStatus);		
+		Set<Book> books = bookRepository.findByStatus(theStatus);		
 		
-		if(books == null) {
-			throw new RuntimeException("Book status not found - " + theStatus);
+		if(books.isEmpty()) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no book with status - " + theStatus);
 		} 
 		
 		return books;

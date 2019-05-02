@@ -27,27 +27,21 @@ public class ShelfRestController {
 		shelfService = theShelfService;
 	}
 	
-	@GetMapping("/")
+	@GetMapping(value = "/")
 	public List<Shelf> findAll(){
 		
 		return shelfService.findAll();
 		
 	}
 	
-	@GetMapping("/{shelfId}")
+	@GetMapping(value = "/{shelfId}")
 	public Shelf getShelf(@PathVariable int shelfId) {
 		
-		Shelf theShelf = shelfService.findById(shelfId);
-		
-		if(theShelf == null) {
-			throw new RuntimeException("Shelf id not found");
-		}
-		
-		return theShelf;
+		return shelfService.findById(shelfId);
 		
 	}
 	
-	@PostMapping("/")
+	@PostMapping(value = "/")
 	public Shelf saveShelf(@RequestBody Shelf theShelf) {
 		
 		theShelf.setShelfId(0);
@@ -58,7 +52,7 @@ public class ShelfRestController {
 		
 	}
 	
-	@PutMapping("/")
+	@PutMapping(value = "/")
 	public Shelf updateShelf(@RequestBody Shelf theShelf) {
 		
 		shelfService.save(theShelf);
@@ -67,28 +61,22 @@ public class ShelfRestController {
 		
 	}
 	
-	@DeleteMapping("/shelfId")
+	@DeleteMapping(value = "/{shelfId}")
 	public String deleteShelf(@PathVariable int shelfId) {
-		
-		Shelf theShelf = shelfService.findById(shelfId);
-		
-		if(theShelf == null) {
-			throw new RuntimeException("Shelf Id not found - " + shelfId);
-		}
 		
 		shelfService.deleteById(shelfId);
 		
 		return "Deleted Shelf Id - " + shelfId;
 	}
 	
-	@PostMapping("/addBook")
+	@PostMapping(value = "/", params = {"shelfId", "bookId"})
 	public Shelf addBook(@RequestParam int shelfId, @RequestParam int bookId) {
 		
 		return shelfService.addBook(shelfId, bookId);
 		
 	}
 	
-	@PostMapping("/removeBook")
+	@DeleteMapping(value = "/", params = {"shelfId", "bookId"})
 	public Shelf removeBook(@RequestParam int shelfId, @RequestParam int bookId) {
 		
 		return shelfService.removeBook(shelfId, bookId);

@@ -4,7 +4,10 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.mitrais.javabootcamp.charles.entity.Book;
 import com.mitrais.javabootcamp.charles.entity.Shelf;
@@ -39,13 +42,14 @@ public class ShelfServiceImpl implements ShelfService {
 		if(result.isPresent()) {
 			theShelf = result.get();
 		}else {
-			throw new RuntimeException("Did not find shelf id - " + theId);
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Shelf Id not found - " + theId);
 		}
 		
 		return theShelf;
 	}
 
 	@Override
+	@Transactional
 	public void save(Shelf theShelf) {
 		
 		shelfRepository.save(theShelf);
@@ -53,13 +57,21 @@ public class ShelfServiceImpl implements ShelfService {
 	}
 
 	@Override
+	@Transactional
 	public void deleteById(int theId) {
+		
+		Optional<Shelf> result = shelfRepository.findById(theId);
+		
+		if(!result.isPresent()) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Shelf Id not found - " + theId);
+		}
 		
 		shelfRepository.deleteById(theId);
 
 	}
 
 	@Override
+	@Transactional
 	public Shelf addBook(int shelfId, int bookId) {
 		
 		Optional<Shelf> result = shelfRepository.findById(shelfId);
@@ -72,30 +84,34 @@ public class ShelfServiceImpl implements ShelfService {
 			Optional<Book> book = bookRepository.findById(bookId);
 			if(book.isPresent()) {
 				
+				theBook = book.get();
+				
+				if(theBook.getStatus().equals(Status.SHELVED)) {
+					throw new RuntimeException("This book is already in a shelf");
+				}
+				
 				int shelfCurrentCapacity;
 				int shelfMaximumCapacity;
-				
-				theBook = book.get();
 				
 				shelfCurrentCapacity = theShelf.getCurrentCapacity();
 				shelfMaximumCapacity = theShelf.getMaxCapacity();
 				shelfCurrentCapacity++;
 				
 				if (shelfCurrentCapacity > shelfMaximumCapacity) {
-					throw new RuntimeException("Shelf Curent Capacity cannot exceed the Maximum Capacity");
+					throw new RuntimeException("Shelf Current Capacity cannot exceed the Maximum Capacity");
 				}
 				
 				theShelf.setCurrentCapacity(shelfCurrentCapacity);
-				theBook.setStatus(Status.shelved);
+				theBook.setStatus(Status.SHELVED);
 				theShelf.addBook(theBook);
 				
 				shelfRepository.save(theShelf);
 				
 			}else {
-				throw new RuntimeException("Did not find book id - " + bookId);
+				throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Book Id not found - " + bookId);
 			}
 		} else {
-			throw new RuntimeException("Did not find shelf id - " + shelfId);
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Shelf Id not found - " + shelfId);
 		}
 		
 		return theShelf;
@@ -103,6 +119,7 @@ public class ShelfServiceImpl implements ShelfService {
 	}
 
 	@Override
+	@Transactional
 	public Shelf removeBook(int shelfId, int bookId) {
 
 		Optional<Shelf> result = shelfRepository.findById(shelfId);
@@ -115,24 +132,28 @@ public class ShelfServiceImpl implements ShelfService {
 			Optional<Book> book = bookRepository.findById(bookId);
 			if(book.isPresent()) {
 				
-				int shelfCurrentCapacity;
-				
 				theBook = book.get();
+				
+				if(theBook.getStatus().equals(Status.NOT_SHELVED)) {
+					throw new RuntimeException("This book is not shelved");
+				}
+				
+				int shelfCurrentCapacity;
 				
 				shelfCurrentCapacity = theShelf.getCurrentCapacity();
 				shelfCurrentCapacity--;
 				
 				theShelf.setCurrentCapacity(shelfCurrentCapacity);
-				theBook.setStatus(Status.not_shelved);
+				theBook.setStatus(Status.NOT_SHELVED);
 				theShelf.removeBook(theBook);
 				
 				shelfRepository.save(theShelf);
 				
 			}else {
-				throw new RuntimeException("Did not find book id - " + bookId);
+				throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Book Id not found - " + bookId);
 			}
 		} else {
-			throw new RuntimeException("Did not find shelf id - " + shelfId);
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Shelf Id not found - " + shelfId);
 		}
 		
 		return theShelf;

@@ -1,6 +1,6 @@
 package com.mitrais.javabootcamp.charles.rest;
 
-import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,45 +28,39 @@ public class BookRestController {
 		bookService = theBookService;
 	}
 	
-	@GetMapping("/")
-	public List<Book> findAll(){
+	@GetMapping(value = "/")
+	public Set<Book> findAll(){
 		
 		return bookService.findAll();
 		
 	}
 	
-	@GetMapping("/{bookId}")
+	@GetMapping(value = "/{bookId}")
 	public Book getBook(@PathVariable int bookId) {
 		
-		Book theBook = bookService.findById(bookId);
-		
-		if(theBook == null) {
-			throw new RuntimeException("Book Id not found - " + bookId);
-		}
-		
-		return theBook;
+		return bookService.findById(bookId);
 		
 	}
 	
-	@GetMapping("/list-books-by-title")
-	public List<Book> getBookByTitle(@RequestParam String bookTitle) {
+	@GetMapping(value = "/", params = "bookTitle")
+	public Set<Book> getBookByTitle(@RequestParam String bookTitle) {
 		
 		return bookService.findByTitle(bookTitle);
 		
 	}
 	
-	@GetMapping("/list-books-by-status")
-	public List<Book> getBookByStatus(@RequestParam Status bookStatus) {
+	@GetMapping(value = "/", params = "bookStatus")
+	public Set<Book> getBookByStatus(@RequestParam Status bookStatus) {
 		
 		return bookService.findByStatus(bookStatus);
 		
 	}
 	
-	@PostMapping("/")
+	@PostMapping(value = "/")
 	public Book saveBook(@RequestBody Book theBook) {
 		
 		theBook.setId(0);
-		theBook.setStatus(Status.not_shelved);
+		theBook.setStatus(Status.NOT_SHELVED);
 		
 		bookService.save(theBook);
 		
@@ -74,7 +68,7 @@ public class BookRestController {
 		
 	}
 	
-	@PutMapping("/")
+	@PutMapping(value = "/")
 	public Book updateBook(@RequestBody Book theBook) {
 		
 		bookService.save(theBook);
@@ -83,14 +77,8 @@ public class BookRestController {
 		
 	}
 	
-	@DeleteMapping("/{bookId}")
+	@DeleteMapping(value = "/{bookId}")
 	public String deleteBook(@PathVariable int bookId) {
-		
-		Book theBook = bookService.findById(bookId);
-		
-		if(theBook == null) {
-			throw new RuntimeException("Book Id not found - " + bookId);
-		}
 		
 		bookService.deleteById(bookId);
 		
