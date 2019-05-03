@@ -72,8 +72,9 @@ public class BookServiceImpl implements BookService {
 	@Override
 	public Set<Book> findByTitle(String theTitle) {
 		
+		System.out.println("charles was here");
 		Set<Book> books = bookRepository.findByTitleIgnoreCaseContaining(theTitle);		
-		
+		System.out.println("charles was here " + books.size());
 		if(books.isEmpty()) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no book with title - " + theTitle);
 		} 
